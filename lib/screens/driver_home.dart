@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'trip/trip_running.dart';
+import 'trip/history_screen.dart'; // <-- EITA ADD KORLAM
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -37,7 +38,7 @@ class _DriverHomeState extends State<DriverHome> {
     Widget mapPage = Stack(
       children: [
         kIsWeb
-           ? Container(
+          ? Container(
                 color: Colors.grey[300],
                 child: const Center(child: Text("Map Android Phone e dekhabe")),
               )
@@ -71,7 +72,7 @@ class _DriverHomeState extends State<DriverHome> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      onPressed: acceptTrip, // <-- EKHANE FIX KORCHI
+                      onPressed: acceptTrip,
                       child: const Text("ACCEPT", style: TextStyle(color: Colors.white)),
                     ),
                   ),
@@ -83,11 +84,9 @@ class _DriverHomeState extends State<DriverHome> {
       ),
     );
 
-    Widget historyPage = const Column(
-      children: [
-        ListTile(leading: Icon(Icons.history), title: Text("মিরপুর - গুলশান"), subtitle: Text("আজ, 120 টাকা")),
-      ],
-    );
+    // --- EKHANE FIX KORLAM ---
+    Widget historyPage = const HistoryScreen(); // Age Column chilo, ekhon HistoryScreen
+    // -------------------------
 
     Widget takaPage = Padding(
       padding: const EdgeInsets.all(20),
