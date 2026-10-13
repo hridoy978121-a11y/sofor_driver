@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:provider/provider.dart';
-import '../providers/driver_provider.dart';
-import '../core/utils/helpers.dart';
-import '../widgets/custom_button.dart';
-import '../data/districts.dart';
-import '../services/voice_service.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -15,114 +9,101 @@ class DriverHome extends StatefulWidget {
 }
 
 class _DriverHomeState extends State<DriverHome> {
-  final MapController _mapController = MapController();
-  final VoiceService _voiceService = VoiceService();
-  District? _lastDistrict;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final provider = context.watch<DriverProvider>();
-    final newDistrict = provider.selectedDistrict;
-
-    // Jela change holei map move korbe, bar bar na
-    if (_lastDistrict?.nameEn != newDistrict.nameEn) {
-      _lastDistrict = newDistrict;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        try {
-          _mapController.move(
-            LatLng(newDistrict.lat, newDistrict.lng), 12);
-        } catch (e) {
-          // Map ready na hole ignore
-        }
-      });
-    }
-  }
+  int _index = 0;
+  final LatLng dhaka = const LatLng(23.8103, 90.4125);
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DriverProvider>();
-    final trip = provider.currentTrip;
-    final districtLatLng = LatLng(provider.selectedDistrict.lat, provider.selectedDistrict.lng);
+    Widget mapPage = Stack(
+      children: [
+        kIsWeb
+           ? Container(
+                color: Colors.grey[300],
+                child: const Center(
+                  child: Text(
+                    "Map Android Phone e dekhabe\nChrome e Map support kore na",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            : GoogleMap(
+                initialCameraPosition: CameraPosition(target: dhaka, zoom: 13),
+                myLocationEnabled: true,
+              ),
+        Positioned(
+          top: 20,
+          left: 15,
+          right: 15,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(10)),
+            child: const Text("ঢাকা - ONLINE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          ),
+        ),
+      ],
+    );
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text("SOFOR - ${provider.selectedDistrict.nameEn}", style: const TextStyle(color: Colors.white, fontSize: 15)),
-        actions: [Switch(value: provider.isOnline, activeColor: Colors.white, onChanged: (v) => provider.toggleOnline(v))],
+    Widget requestPage = Center(
+      child: Card(
+        margin: const EdgeInsets.all(20),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("নতুন যাত্রী! 1.2km দূরে", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("মিরপুর 10 থেকে ধানমন্ডি"),
+              const SizedBox(height: 15),
+              Row(
+                children: [
+                  Expanded(child: ElevatedButton(onPressed: () {}, child: const Text("Reject"))),
+                  const SizedBox(width: 10),
+                  Expanded(child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green), onPressed: () {}, child: const Text("ACCEPT"))),
+                ],
+              )
+            ],
+          ),
+        ),
       ),
-      body: Column(
-        children: [
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<District>(
-                value: provider.selectedDistrict,
-                isExpanded: true,
-                items: bdDistricts.map((d) => DropdownMenuItem(value: d, child: Text("${d.nameBn} - ${d.nameEn}"))).toList(),
-                onChanged: (v) { if(v!=null) provider.setDistrict(v); },
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 400,
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter: districtLatLng, 
-                initialZoom: 12,
-                onMapReady: () {
-                  _mapController.move(districtLatLng, 12);
-                }
-              ),
-              children: [
-                TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.sofor.driver'),
-                MarkerLayer(markers: [Marker(point: districtLatLng, width: 50, height: 50, child: const Icon(Icons.location_pin, color: Colors.red, size: 45))]),
-              ],
-            ),
-          ),
-          Container(width: double.infinity, color: Colors.red.shade50, padding: const EdgeInsets.all(8), child: Text("🇧🇩 ${provider.selectedDistrict.nameBn} - ONLINE", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))),
-          const Spacer(),
-          if (trip != null)
-            Card(
-              margin: const EdgeInsets.all(12),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(children: [
-                  Text("📍 Pickup: ${trip.pickup}"),
-                  Text("🎯 Drop: ${trip.drop}"),
-                  const SizedBox(height: 5),
-                  Text(formatTaka(trip.fare), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green)),
-                  const SizedBox(height: 10),
-                  Row(children: [
-                    Expanded(child: CustomButton(text: 'বাতিল', color: Colors.grey, onTap: provider.rejectTrip)),
-                    const SizedBox(width: 10),
-                    Expanded(child: CustomButton(text: 'গ্রহণ', color: Colors.red, onTap: provider.acceptTrip)),
-                  ])
-                ]),
-              ),
-            )
-          else
-            Padding(padding: const EdgeInsets.all(20), child: Text(provider.isOnline ? "যাত্রীর জন্য অপেক্ষা করছি..." : "অনলাইন হন ট্রিপ পেতে")),
+    );
+
+    Widget historyPage = const Column(
+      children: [
+        ListTile(leading: Icon(Icons.history), title: Text("মিরপুর - গুলশান"), subtitle: Text("আজ, 120 টাকা"), trailing: Icon(Icons.check_circle, color: Colors.green)),
+        ListTile(leading: Icon(Icons.history), title: Text("ধানমন্ডি - উত্তরা"), subtitle: Text("গতকাল, 250 টাকা")),
+      ],
+    );
+
+    Widget takaPage = Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: const [
+          CircleAvatar(radius: 40, child: Icon(Icons.person, size: 50)),
+          SizedBox(height: 10),
+          Text("ড্রাইভার: Sofor Dhaka", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          SizedBox(height: 20),
+          Card(child: ListTile(title: Text("আজকের আয়"), trailing: Text("450 টাকা", style: TextStyle(fontWeight: FontWeight.bold)))),
+          Card(child: ListTile(title: Text("মোট ট্রিপ"), trailing: Text("12 টি"))),
+          Card(child: ListTile(title: Text("রেটিং"), trailing: Text("4.9 ⭐"))),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          bool ok = await _voiceService.init();
-          if(!ok) return;
-          _voiceService.listen(onResult: (text){
-            if(text.contains("গ্রহণ") || text.contains("accept")){
-              provider.acceptTrip();
-              _voiceService.speak("ট্রিপ গ্রহণ করা হয়েছে");
-            } else if(text.contains("বাতিল") || text.contains("cancel")){
-              provider.rejectTrip();
-              _voiceService.speak("ট্রিপ বাতিল করা হয়েছে");
-            }
-          });
-        }, 
-        icon: const Icon(Icons.mic), 
-        label: const Text("বাংলায় বলুন")
+    );
+
+    List<Widget> pages = [mapPage, requestPage, historyPage, takaPage];
+
+    return Scaffold(
+      body: pages[_index],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _index,
+        onTap: (i) => setState(() => _index = i),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.red,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: "হোম"),
+          BottomNavigationBarItem(icon: Icon(Icons.person_pin_circle), label: "রিকোয়েস্ট"),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "হিস্টোরি"),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: "আয়"),
+        ],
       ),
     );
   }
