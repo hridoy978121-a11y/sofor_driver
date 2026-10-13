@@ -8,14 +8,42 @@ import '../widgets/custom_button.dart';
 import '../data/districts.dart';
 import '../services/voice_service.dart';
 
-class DriverHome extends StatelessWidget {
+class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
+  @override
+  State<DriverHome> createState() => _DriverHomeState();
+}
+
+class _DriverHomeState extends State<DriverHome> {
+  final MapController _mapController = MapController();
+  final VoiceService _voiceService = VoiceService();
+  District? _lastDistrict;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = context.watch<DriverProvider>();
+    final newDistrict = provider.selectedDistrict;
+
+    // Jela change holei map move korbe, bar bar na
+    if (_lastDistrict?.nameEn != newDistrict.nameEn) {
+      _lastDistrict = newDistrict;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          _mapController.move(
+            LatLng(newDistrict.lat, newDistrict.lng), 12);
+        } catch (e) {
+          // Map ready na hole ignore
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DriverProvider>();
     final trip = provider.currentTrip;
     final districtLatLng = LatLng(provider.selectedDistrict.lat, provider.selectedDistrict.lng);
-    final voiceService = VoiceService();
 
     return Scaffold(
       appBar: AppBar(
@@ -40,14 +68,21 @@ class DriverHome extends StatelessWidget {
           SizedBox(
             height: 400,
             child: FlutterMap(
-              options: MapOptions(initialCenter: districtLatLng, initialZoom: 12),
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: districtLatLng, 
+                initialZoom: 12,
+                onMapReady: () {
+                  _mapController.move(districtLatLng, 12);
+                }
+              ),
               children: [
                 TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.sofor.driver'),
                 MarkerLayer(markers: [Marker(point: districtLatLng, width: 50, height: 50, child: const Icon(Icons.location_pin, color: Colors.red, size: 45))]),
               ],
             ),
           ),
-          Container(width: double.infinity, color: Colors.red.shade50, padding: const EdgeInsets.all(8), child: Text("🇧🇩 ${provider.selectedDistrict.nameBn} - ${provider.selectedDistrict.nameEn} ONLINE", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))),
+          Container(width: double.infinity, color: Colors.red.shade50, padding: const EdgeInsets.all(8), child: Text("🇧🇩 ${provider.selectedDistrict.nameBn} - ONLINE", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))),
           const Spacer(),
           if (trip != null)
             Card(
@@ -69,20 +104,20 @@ class DriverHome extends StatelessWidget {
               ),
             )
           else
-            const SizedBox.shrink(),
+            Padding(padding: const EdgeInsets.all(20), child: Text(provider.isOnline ? "যাত্রীর জন্য অপেক্ষা করছি..." : "অনলাইন হন ট্রিপ পেতে")),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          bool ok = await voiceService.init();
+          bool ok = await _voiceService.init();
           if(!ok) return;
-          voiceService.listen(onResult: (text){
-            if(text.contains("গ্রহণ") || text.contains("grihon") || text.contains("accept")){
+          _voiceService.listen(onResult: (text){
+            if(text.contains("গ্রহণ") || text.contains("accept")){
               provider.acceptTrip();
-              voiceService.speak("ট্রিপ গ্রহণ করা হয়েছে");
-            } else if(text.contains("বাতিল") || text.contains("batil") || text.contains("cancel")){
+              _voiceService.speak("ট্রিপ গ্রহণ করা হয়েছে");
+            } else if(text.contains("বাতিল") || text.contains("cancel")){
               provider.rejectTrip();
-              voiceService.speak("ট্রিপ বাতিল করা হয়েছে");
+              _voiceService.speak("ট্রিপ বাতিল করা হয়েছে");
             }
           });
         }, 
