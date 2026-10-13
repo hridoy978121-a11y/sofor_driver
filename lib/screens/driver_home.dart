@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'trip/trip_running.dart';
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -9,8 +10,27 @@ class DriverHome extends StatefulWidget {
 }
 
 class _DriverHomeState extends State<DriverHome> {
-  int _index = 0;
+  int _index = 1; // request tab open thakbe
   final LatLng dhaka = const LatLng(23.8103, 90.4125);
+
+  void acceptTrip() {
+    final demoTripData = {
+      'pickupLat': 23.8103,
+      'pickupLng': 90.4125,
+      'pickupAddress': 'মিরপুর 10 থেকে ধানমন্ডি',
+      'fare': 120,
+    };
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TripRunningScreen(
+          tripId: 'trip_${DateTime.now().millisecondsSinceEpoch}',
+          tripData: demoTripData,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,25 +39,15 @@ class _DriverHomeState extends State<DriverHome> {
         kIsWeb
            ? Container(
                 color: Colors.grey[300],
-                child: const Center(
-                  child: Text(
-                    "Map Android Phone e dekhabe\nChrome e Map support kore na",
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                child: const Center(child: Text("Map Android Phone e dekhabe")),
               )
-            : GoogleMap(
-                initialCameraPosition: CameraPosition(target: dhaka, zoom: 13),
-                myLocationEnabled: true,
-              ),
+            : GoogleMap(initialCameraPosition: CameraPosition(target: dhaka, zoom: 13)),
         Positioned(
-          top: 20,
-          left: 15,
-          right: 15,
+          top: 20, left: 15, right: 15,
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(10)),
-            child: const Text("ঢাকা - ONLINE", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+            child: const Text("ঢাকা - ONLINE", style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
           ),
         ),
       ],
@@ -58,7 +68,13 @@ class _DriverHomeState extends State<DriverHome> {
                 children: [
                   Expanded(child: ElevatedButton(onPressed: () {}, child: const Text("Reject"))),
                   const SizedBox(width: 10),
-                  Expanded(child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green), onPressed: () {}, child: const Text("ACCEPT"))),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                      onPressed: acceptTrip, // <-- EKHANE FIX KORCHI
+                      child: const Text("ACCEPT", style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
                 ],
               )
             ],
@@ -69,8 +85,7 @@ class _DriverHomeState extends State<DriverHome> {
 
     Widget historyPage = const Column(
       children: [
-        ListTile(leading: Icon(Icons.history), title: Text("মিরপুর - গুলশান"), subtitle: Text("আজ, 120 টাকা"), trailing: Icon(Icons.check_circle, color: Colors.green)),
-        ListTile(leading: Icon(Icons.history), title: Text("ধানমন্ডি - উত্তরা"), subtitle: Text("গতকাল, 250 টাকা")),
+        ListTile(leading: Icon(Icons.history), title: Text("মিরপুর - গুলশান"), subtitle: Text("আজ, 120 টাকা")),
       ],
     );
 
@@ -81,10 +96,7 @@ class _DriverHomeState extends State<DriverHome> {
           CircleAvatar(radius: 40, child: Icon(Icons.person, size: 50)),
           SizedBox(height: 10),
           Text("ড্রাইভার: Sofor Dhaka", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 20),
-          Card(child: ListTile(title: Text("আজকের আয়"), trailing: Text("450 টাকা", style: TextStyle(fontWeight: FontWeight.bold)))),
-          Card(child: ListTile(title: Text("মোট ট্রিপ"), trailing: Text("12 টি"))),
-          Card(child: ListTile(title: Text("রেটিং"), trailing: Text("4.9 ⭐"))),
+          Card(child: ListTile(title: Text("আজকের আয়"), trailing: Text("450 টাকা"))),
         ],
       ),
     );
