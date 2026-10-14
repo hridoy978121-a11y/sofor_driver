@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/earning_provider.dart';
 
 class RatingScreen extends StatefulWidget {
   final int fare;
@@ -36,7 +38,10 @@ class _RatingScreenState extends State<RatingScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, padding: const EdgeInsets.all(16)),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$rating Star diyechen!")));
+                  // STEP 4 er main line - Earning add hobe
+                  Provider.of<EarningProvider>(context, listen: false).addEarning(widget.fare.toDouble());
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$rating Star diyechen! ${widget.fare} Taka add holo!")));
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 child: const Text("Submit & Home e Jan", style: TextStyle(color: Colors.white, fontSize: 18)),
