@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'driver_home.dart';
 
@@ -54,19 +55,19 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: filtered.isEmpty
-                     ? const Center(child: Text("No District Found"))
-                      : ListView.builder(
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(filtered[index]),
-                            onTap: () {
-                              setState(() => selectedZila = filtered[index]);
-                              Navigator.pop(context);
-                            },
-                          );
-                        },
-                      ),
+                         ? const Center(child: Text("No District Found"))
+                          : ListView.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(filtered[index]),
+                                  onTap: () {
+                                    setState(() => selectedZila = filtered[index]);
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
@@ -78,6 +79,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
     );
   }
 
+  // ---- EI FUNCTION TA EKHAINE BOSBE ----
   Future<void> login() async {
     if (nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Full Name Likhen")));
@@ -98,14 +100,38 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
 
     String fullNumber = "+880$raw";
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('driver_name', nameController.text.trim());
-    await prefs.setString('driver_phone', fullNumber);
-    await prefs.setString('driver_zila', selectedZila!);
-    await prefs.setBool('is_logged_in', true);
+    // Loading dekhabo
+    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
 
-    if (mounted) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DriverHome()));
+    try {
+      // 1. Firebase e Save
+      await FirebaseFirestore.instance.collection('drivers').doc(fullNumber).set({
+        'name': nameController.text.trim(),
+        'phone': fullNumber,
+        'district': selectedZila,
+        'isOnline': false,
+        'isBusy': false,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastActive': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 2. Local e Save
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('driver_name', nameController.text.trim());
+      await prefs.setString('driver_phone', fullNumber);
+      await prefs.setString('driver_zila', selectedZila!);
+      await prefs.setBool('is_logged_in', true);
+
+      if (mounted) Navigator.pop(context); // loading off
+
+      if (mounted) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DriverHome()));
+      }
+    } catch (e) {
+      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
     }
   }
 
@@ -124,10 +150,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: "Full Name", border: OutlineInputBorder())
-            ),
+            TextField(controller: nameController, decoration: const InputDecoration(labelText: "Full Name", border: OutlineInputBorder())),
             const SizedBox(height: 15),
             TextField(
               controller: phoneController,
@@ -141,8 +164,8 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                 border: OutlineInputBorder(),
                 counterText: "",
               ),
-              onChanged: (val){
-                if(val.startsWith('0')){
+              onChanged: (val) {
+                if (val.startsWith('0')) {
                   phoneController.text = val.substring(1);
                   phoneController.selection = TextSelection.fromPosition(TextPosition(offset: phoneController.text.length));
                 }
