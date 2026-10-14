@@ -20,7 +20,7 @@ class LocationService {
 
   void startTracking() {
     _positionStream = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
     ).listen((Position pos) {
       String? uid = _auth.currentUser?.uid;
       if (uid != null) {

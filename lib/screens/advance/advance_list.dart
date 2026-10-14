@@ -130,7 +130,7 @@ class _AdvanceListScreenState extends State<AdvanceListScreen> with SingleTicker
           const SizedBox(height: 12),
           Row(children: [const Icon(Icons.circle, size: 10, color: Colors.green), const SizedBox(width: 8), Expanded(child: Text(from))]),
           const Padding(padding: EdgeInsets.only(left: 4, top: 2, bottom: 2), child: Text("|", style: TextStyle(color: Colors.grey))),
-          Row(children: [const Icon(Icons.location_on, size: 14, color: Colors.red), const SizedBox(width: 8), Expanded(child: Text(to, style: TextStyle(fontWeight: FontWeight.bold)))]),
+          Row(children: [const Icon(Icons.location_on, size: 14, color: Colors.red), const SizedBox(width: 8), Expanded(child: Text(to, style: const TextStyle(fontWeight: FontWeight.bold)))]),
           const Divider(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
