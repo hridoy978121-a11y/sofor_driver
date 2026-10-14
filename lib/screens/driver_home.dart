@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'trip/trip_running.dart';
-import 'trip/history_screen.dart'; // <-- EITA ADD KORLAM
+import 'trip/history_screen.dart';
+import 'wallet_screen.dart'; // <-- Wallet Add Korlam
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -11,7 +12,7 @@ class DriverHome extends StatefulWidget {
 }
 
 class _DriverHomeState extends State<DriverHome> {
-  int _index = 1; // request tab open thakbe
+  int _index = 1;
   final LatLng dhaka = const LatLng(23.8103, 90.4125);
 
   void acceptTrip() {
@@ -21,7 +22,6 @@ class _DriverHomeState extends State<DriverHome> {
       'pickupAddress': 'মিরপুর 10 থেকে ধানমন্ডি',
       'fare': 120,
     };
-
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -37,12 +37,7 @@ class _DriverHomeState extends State<DriverHome> {
   Widget build(BuildContext context) {
     Widget mapPage = Stack(
       children: [
-        kIsWeb
-          ? Container(
-                color: Colors.grey[300],
-                child: const Center(child: Text("Map Android Phone e dekhabe")),
-              )
-            : GoogleMap(initialCameraPosition: CameraPosition(target: dhaka, zoom: 13)),
+        kIsWeb? Container(color: Colors.grey[300], child: const Center(child: Text("Map Android Phone e dekhabe"))) : GoogleMap(initialCameraPosition: CameraPosition(target: dhaka, zoom: 13)),
         Positioned(
           top: 20, left: 15, right: 15,
           child: Container(
@@ -69,13 +64,7 @@ class _DriverHomeState extends State<DriverHome> {
                 children: [
                   Expanded(child: ElevatedButton(onPressed: () {}, child: const Text("Reject"))),
                   const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      onPressed: acceptTrip,
-                      child: const Text("ACCEPT", style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
+                  Expanded(child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green), onPressed: acceptTrip, child: const Text("ACCEPT", style: TextStyle(color: Colors.white)))),
                 ],
               )
             ],
@@ -84,21 +73,8 @@ class _DriverHomeState extends State<DriverHome> {
       ),
     );
 
-    // --- EKHANE FIX KORLAM ---
-    Widget historyPage = const HistoryScreen(); // Age Column chilo, ekhon HistoryScreen
-    // -------------------------
-
-    Widget takaPage = Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: const [
-          CircleAvatar(radius: 40, child: Icon(Icons.person, size: 50)),
-          SizedBox(height: 10),
-          Text("ড্রাইভার: Sofor Dhaka", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          Card(child: ListTile(title: Text("আজকের আয়"), trailing: Text("450 টাকা"))),
-        ],
-      ),
-    );
+    Widget historyPage = const HistoryScreen();
+    Widget takaPage = const WalletScreen(); // <-- EKHANE WALLET BOSALAM
 
     List<Widget> pages = [mapPage, requestPage, historyPage, takaPage];
 
