@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 class WalletScreen extends StatelessWidget {
   const WalletScreen({super.key});
 
+  // === তোমার নাম্বার ===
+  static const String bkashNumber = "01766562165";
+  static const String nagadNumber = "01766562165";
+  static const String accName = "Sofor Pay";
+
   @override
   Widget build(BuildContext context) {
-    // Pore Firebase theke asbe
     double totalEarning = 2450;
     double walletBalance = 2000;
     double companyDue = 450;
@@ -23,7 +27,7 @@ class WalletScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 1. Sobuj Card
+            // Sobuj Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -50,56 +54,75 @@ class WalletScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // 2. bKash Box
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(backgroundColor: Colors.pink, child: Icon(Icons.account_balance_wallet, color: Colors.white)),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("bKash Payment", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            Text("017XXXXXXXX - Sofor Pay", style: TextStyle(color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Clipboard.setData(const ClipboardData(text: "017XXXXXXXX"));
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("bKash Number Copyed!")));
-                        },
-                        child: const Text("Copy"),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, padding: const EdgeInsets.all(14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Admin ke request pathano hoise!")));
-                      },
-                      child: const Text("Payment Done Janan", style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  )
-                ],
+            // 1. bKash Box
+            _paymentBox(
+              context,
+              icon: Icons.account_balance_wallet,
+              color: Colors.pink,
+              title: "bKash Payment",
+              number: bkashNumber,
+              name: accName,
+            ),
+            const SizedBox(height: 12),
+
+            // 2. Nagad Box
+            _paymentBox(
+              context,
+              icon: Icons.phone_android,
+              color: Colors.orange,
+              title: "Nagad Payment",
+              number: nagadNumber,
+              name: accName,
+            ),
+
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, padding: const EdgeInsets.all(14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Admin ke request pathano hoise!")));
+                },
+                child: const Text("Payment Done Janan", style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 20),
-            const Text("Note: bKash korar por 'Payment Done' e click korun. Admin approve korle Due 0 hoye jabe.", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const Text("Note: bKash/Nagad korar por 'Payment Done' e click korun. Admin approve korle Due 0 hoye jabe.", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _paymentBox(BuildContext context, {required IconData icon, required Color color, required String title, required String number, required String name}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(backgroundColor: color, child: Icon(icon, color: Colors.white)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("$number - $name", style: const TextStyle(color: Colors.grey)),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: number));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$title Number Copyed!")));
+            },
+            child: const Text("Copy"),
+          )
+        ],
       ),
     );
   }

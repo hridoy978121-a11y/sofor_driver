@@ -3,7 +3,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'trip/trip_running.dart';
 import 'trip/history_screen.dart';
-import 'wallet_screen.dart'; // <-- Wallet Add Korlam
+import 'wallet_screen.dart';
+import 'advance/advance_list.dart'; // <-- Advance Add
+import 'letter/letter_list.dart'; // <-- Letter Add
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -12,7 +14,7 @@ class DriverHome extends StatefulWidget {
 }
 
 class _DriverHomeState extends State<DriverHome> {
-  int _index = 1;
+  int _index = 0; // শুরুতে হোম
   final LatLng dhaka = const LatLng(23.8103, 90.4125);
 
   void acceptTrip() {
@@ -37,9 +39,13 @@ class _DriverHomeState extends State<DriverHome> {
   Widget build(BuildContext context) {
     Widget mapPage = Stack(
       children: [
-        kIsWeb? Container(color: Colors.grey[300], child: const Center(child: Text("Map Android Phone e dekhabe"))) : GoogleMap(initialCameraPosition: CameraPosition(target: dhaka, zoom: 13)),
+        kIsWeb
+           ? Container(color: Colors.grey[300], child: const Center(child: Text("Map Android Phone e dekhabe")))
+            : GoogleMap(initialCameraPosition: CameraPosition(target: dhaka, zoom: 13)),
         Positioned(
-          top: 20, left: 15, right: 15,
+          top: 20,
+          left: 15,
+          right: 15,
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(10)),
@@ -64,7 +70,11 @@ class _DriverHomeState extends State<DriverHome> {
                 children: [
                   Expanded(child: ElevatedButton(onPressed: () {}, child: const Text("Reject"))),
                   const SizedBox(width: 10),
-                  Expanded(child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green), onPressed: acceptTrip, child: const Text("ACCEPT", style: TextStyle(color: Colors.white)))),
+                  Expanded(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                          onPressed: acceptTrip,
+                          child: const Text("ACCEPT", style: TextStyle(color: Colors.white)))),
                 ],
               )
             ],
@@ -73,10 +83,15 @@ class _DriverHomeState extends State<DriverHome> {
       ),
     );
 
-    Widget historyPage = const HistoryScreen();
-    Widget takaPage = const WalletScreen(); // <-- EKHANE WALLET BOSALAM
-
-    List<Widget> pages = [mapPage, requestPage, historyPage, takaPage];
+    // সব পেজ একসাথে
+    List<Widget> pages = [
+      mapPage, // 0
+      requestPage, // 1
+      const AdvanceListScreen(), // 2 - Advance
+      const LetterListScreen(), // 3 - Letter
+      const HistoryScreen(), // 4 - History
+      const WalletScreen(), // 5 - Wallet
+    ];
 
     return Scaffold(
       body: pages[_index],
@@ -84,10 +99,15 @@ class _DriverHomeState extends State<DriverHome> {
         currentIndex: _index,
         onTap: (i) => setState(() => _index = i),
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.red,
+        selectedItemColor: const Color(0xFFE52D27),
+        unselectedItemColor: Colors.grey,
+        selectedFontSize: 11,
+        unselectedFontSize: 11,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.map), label: "হোম"),
           BottomNavigationBarItem(icon: Icon(Icons.person_pin_circle), label: "রিকোয়েস্ট"),
+          BottomNavigationBarItem(icon: Icon(Icons.event_note), label: "Advance"),
+          BottomNavigationBarItem(icon: Icon(Icons.mail_outline), label: "Letter"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "হিস্টোরি"),
           BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: "আয়"),
         ],
