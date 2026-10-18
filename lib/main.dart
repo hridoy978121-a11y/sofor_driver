@@ -1,53 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'providers/driver_provider.dart';
-import 'providers/earning_provider.dart';
-import 'screens/driver_home.dart';
-import 'screens/driver_login_screen.dart';
-import 'firebase_options.dart';
+import 'features/home/home_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const SoforDriverApp());
-}
+void main() => runApp(const SoforApp());
 
-class SoforDriverApp extends StatelessWidget {
-  const SoforDriverApp({super.key});
-
-  Future<bool> checkLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('is_logged_in') ?? false;
-  }
-
+class SoforApp extends StatelessWidget {
+  const SoforApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => DriverProvider()),
-        ChangeNotifierProvider(create: (_) => EarningProvider()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: FutureBuilder<bool>(
-          future: checkLogin(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
-            }
-            if (snapshot.data == true) {
-              return const DriverHome();
-            } else {
-              return const DriverLoginScreen();
-            }
-          },
-        ),
-        routes: {
-          '/login': (context) => const DriverLoginScreen(),
-          '/home': (context) => const DriverHome(),
-        },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Sofor Driver',
+      theme: ThemeData(primaryColor: const Color(0xFF00A86B)),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), (){
+      if(mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const HomeScreen()));
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Color(0xFF00A86B),
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(Icons.route, size: 80, color: Colors.white),
+          SizedBox(height: 10),
+          Text("Sofor", style: TextStyle(fontSize: 42, color: Colors.white, fontWeight: FontWeight.bold)),
+          Text("Driver App", style: TextStyle(color: Colors.white)),
+        ]),
       ),
     );
   }
