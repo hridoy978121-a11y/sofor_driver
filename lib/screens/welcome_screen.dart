@@ -30,9 +30,9 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              // 3. NEW TEXT - EKHANE VUL CHILO
+              // 3. NEW TEXT - THIK KORA HOLO
               const Text(
-                "Welcome to Sofor Ride.",
+                "Welcome to Sofor Driver.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 26,
@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 8),
 
               const Text(
-                "Delivery, Arrived on Time.",
+                "Delivery • Arrived on Time.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'provider/language_provider.dart';
+import 'screens/language_select_screen.dart';
 
 void main() {
-  runApp(const SoforDriverApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
 }
 
-class SoforDriverApp extends StatelessWidget {
-  const SoforDriverApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Sofor Driver',
-      theme: ThemeData(
-        primaryColor: Color(0xFF00A86B),
-        scaffoldBackgroundColor: Colors.white,
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF00A86B)),
+    return ChangeNotifierProvider(
+      create: (_) => LanguageProvider(),
+      child: Consumer<LanguageProvider>(
+        builder: (context, langProvider, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Sofor Driver',
+            home: const LanguageSelectScreen(),
+          );
+        },
       ),
-      home: SplashScreen(),
     );
   }
 }
