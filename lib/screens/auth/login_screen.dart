@@ -122,9 +122,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Column(
                             children: [
-                              const Text("Welcome Back Driver", style: TextStyle(color: Color(0xFFC8F0FF), fontWeight: FontWeight.bold, fontSize: 20)),
+                              const Text("Welcome to Sofor Rider", style: TextStyle(color: Color(0xFFC8F0FF), fontWeight: FontWeight.bold, fontSize: 20)),
                               const SizedBox(height: 4),
-                              const Text("Sign in to continue to your driver account", style: TextStyle(color: Colors.white60, fontSize: 12)),
+                              const Text("Create your SOfor driver account", style: TextStyle(color: Colors.white60, fontSize: 12)),
                               const SizedBox(height: 22),
                               const Align(alignment: Alignment.centerLeft, child: Text("Phone Number", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600))),
                               const SizedBox(height: 8),
@@ -171,16 +171,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Expanded(child: _socialBtn(iconPath: "G", label: "Google", onTap: signInWithGoogle)),
                         const SizedBox(width: 12),
-                        Expanded(child: _socialBtn(iconPath: "", label: "Apple", isApple: true, onTap: signInWithApple)),
+                        Expanded(child: _socialBtn(iconPath: "🍎", label: "Apple", isApple: true, onTap: signInWithApple)),
                       ],
                     ),
                     const SizedBox(height: 20),
                     const Text("Don't have an account?", style: TextStyle(color: Colors.white60, fontSize: 13)),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/signup');
+                        Navigator.pushNamed(context, '/register');
                       },
-                      child: const Text("Sign Up", style: TextStyle(color: Color(0xFF8BE9FF), fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: const Text("Register Now", style: TextStyle(color: Color(0xFF8BE9FF), fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                     const SizedBox(height: 10),
                   ],
