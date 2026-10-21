@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'register_screen.dart'; // <-- EITA ADD KOREN
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -58,9 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Password 6 digit din")));
       return;
     }
-    // Apnar login API / Firebase logic ekhane
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login try: ${_phoneCtrl.text}")));
-    // Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override
@@ -167,18 +166,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    // FIXED APPLE + GOOGLE BUTTON
                     Row(
                       children: [
-                        Expanded(child: _socialBtn(iconPath: "G", label: "Google", onTap: signInWithGoogle)),
+                        Expanded(child: _socialBtn(icon: Icons.g_mobiledata_outlined, label: "Google", onTap: signInWithGoogle, isGoogle: true)),
                         const SizedBox(width: 12),
-                        Expanded(child: _socialBtn(iconPath: "🍎", label: "Apple", isApple: true, onTap: signInWithApple)),
+                        Expanded(child: _socialBtn(icon: Icons.apple, label: "Apple", onTap: signInWithApple)),
                       ],
                     ),
                     const SizedBox(height: 20),
                     const Text("Don't have an account?", style: TextStyle(color: Colors.white60, fontSize: 13)),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/register');
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen()));
                       },
                       child: const Text("Register Now", style: TextStyle(color: Color(0xFF8BE9FF), fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
@@ -215,7 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialBtn({required String iconPath, required String label, bool isApple = false, required VoidCallback onTap}) {
+  // FIXED BUTTON - EKHOΝ ICON TEXT NA, REAL ICON
+  Widget _socialBtn({required IconData icon, required String label, required VoidCallback onTap, bool isGoogle = false}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
@@ -227,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 48,
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.10), borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.white.withOpacity(0.2))),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(iconPath, style: TextStyle(color: Colors.white, fontSize: isApple ? 22 : 18, fontWeight: FontWeight.bold)),
+              Icon(icon, color: Colors.white, size: isGoogle ? 26 : 22),
               const SizedBox(width: 6),
               Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             ]),
