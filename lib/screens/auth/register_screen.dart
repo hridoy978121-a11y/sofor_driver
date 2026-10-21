@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'otp_screen.dart'; // 👈 EITA ADD KOREN
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -36,7 +37,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // LOGO - same as login
                 ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: BackdropFilter(
@@ -60,7 +60,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // REGISTER CARD - same style
                 ClipRRect(
                   borderRadius: BorderRadius.circular(24),
                   child: BackdropFilter(
@@ -79,22 +78,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 4),
                           const Center(child: Text("Create your Sofor driver account", style: TextStyle(color: Colors.white54, fontSize: 12))),
                           const SizedBox(height: 18),
-                          
                           _label("Full Name"),
                           _field(Icons.person_outline, "John Doe", nameCtrl, false),
                           const SizedBox(height: 12),
-                          
                           _label("Phone Number"),
                           _field(Icons.phone_outlined, "+880 1XXX-XXXXXX", phoneCtrl, false),
                           const SizedBox(height: 12),
-                          
                           _label("Password"),
                           _field(Icons.lock_outline, "........", passCtrl, true, isFirst: true),
                           const SizedBox(height: 12),
-                          
                           _label("Confirm Password"),
                           _field(Icons.lock_outline, "........", confirmCtrl, true, isFirst: false),
-
                           const SizedBox(height: 14),
                           Row(
                             children: [
@@ -110,13 +104,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ],
                           ),
                           const SizedBox(height: 10),
+                          // 👇 EKHANE THIK KORSI - EKHON OTP TE JABE
                           SizedBox(
                             width: double.infinity, height: 50,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8BE9FF), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Account Created! Go to Login")));
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const LoginScreen()));
+                                if(phoneCtrl.text.isEmpty){
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Phone number din")));
+                                  return;
+                                }
+                                // OTP SCREEN E JABE
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => OtpScreen(phone: phoneCtrl.text)));
                               },
                               child: const Text("Register", style: TextStyle(color: Color(0xFF0A1931), fontWeight: FontWeight.bold, fontSize: 18)),
                             ),
